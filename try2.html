@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+
+</head>
+<body>
+<script>
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      testAPI();
+    } else {
+      // The person is not logged into your app or we are unable to tell.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+    }
+  }
+
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+  }
+
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '153432331921141',
+    cookie     : true,  // enable cookies to allow the server to access 
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v2.10' // use graph api version 2.8
+  });
+
+  // Now that we've initialized the JavaScript SDK, we call 
+  // FB.getLoginStatus().  This function gets the state of the
+  // person visiting this page and can return one of three states to
+  // the callback you provide.  They can be:
+  //
+  // 1. Logged into your app ('connected')
+  // 2. Logged into Facebook, but not your app ('not_authorized')
+  // 3. Not logged into Facebook and can't tell if they are logged into
+  //    your app or not.
+  //
+  // These three cases are handled in the callback function.
+
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+	FB.api('/me', { locale: 'tr_TR', fields: 'name,email,birthday,hometown,education,cover,gender,website,work' }, function(response) {
+		console.log('Successful login for: ' + response.name);	   
+      document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + 
+		"<br>Email id : " +  response.email +
+		"<br>Date of birth : "+ response.birthday +
+		"<br>Location : "+ response.hometown['name'] +
+		"<br> Education :" + response.education[0]['type']+
+		"<br> Image:"+response.cover['source'];
+    });
+  }
+function fbLogout() {
+        FB.logout(function (response) {
+            //Do what ever you want here when logged out like reloading the page
+            window.location.reload();
+        });
+    }
+var settings = {
+  "async": true,
+  "crossDomain": true,
+  "url": "https://ruhashaik.auth0.com/oauth/token",
+  "method": "POST",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "processData": false,
+  "data": "{\"grant_type\":\"authorization_code\",\"client_id\": \"T5aqxUs418cZpgvxelS_NHLv_kw_6eOC\",\"client_secret\": \"s2C5rrbmwAbC8htmzyrEJoJtzWcSTI7irKM1mKc_06PhN9PBpgrMZpl3aCWZ4YeJ\",\"code\": \"YOUR_AUTHORIZATION_CODE\",\"redirect_uri\": \"https://YOUR_APP/callback\"}"
+}
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+
+<fb:login-button scope="public_profile,email,user_hometown,user_birthday,user_education_history,user_website,user_work_history" onlogin="checkLoginState();">
+</fb:login-button>
+
+<div id="status">
+</div>
+
+<span id="fbLogout" onclick="fbLogout()"><button ><span >Logout</span></button></span>
+<a href="https://ruhashaik.auth0.com/authorize?scope=appointments%20contacts&audience=appointments:api&response_type=code&client_id=T5aqxUs418cZpgvxelS_NHLv_kw_6eOC&redirect_uri=https://YOUR_APP/callback">
+  Sign In
+</a>
+<?php
+// Initialize variables
+$app_id = '153432331921141';
+$secret = '775249414f69cdb561438d1e57aeb9bd';
+$version = 'v2.10'; // 'v1.1' for example
+
+// Method to send Get request to url
+function doCurl($url) {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  $data = json_decode(curl_exec($ch), true);
+  curl_close($ch);
+  return $data;
+}
+
+// Exchange authorization code for access token
+$token_exchange_url = 'https://graph.accountkit.com/'.$version.'/access_token?'.
+  'grant_type=authorization_code'.
+  '&code='.$_POST['code'].
+  "&access_token=AA|$app_id|$secret";
+$data = doCurl($token_exchange_url);
+$user_id = $data['id'];
+$user_access_token = $data['access_token'];
+$refresh_interval = $data['token_refresh_interval_sec'];
+
+// Get Account Kit information
+$me_endpoint_url = 'https://graph.accountkit.com/'.$version.'/me?'.
+  'access_token='.$user_access_token;
+$data = doCurl($me_endpoint_url);
+$phone = isset($data['phone']) ? $data['phone']['number'] : '';
+$email = isset($data['email']) ? $data['email']['address'] : '';
+
+?>
+<!--
+https://www.facebook.com/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=YOUR_URL&scope=email,read_stream
+https://graph.facebook.com/oauth/access_token?client_id=YOUR_APP_ID&redirect_uri=YOUR_URL&client_secret=YOUR_APP_SECRET&code=THE_CODE_FROM_ABOVE
+
+http://localhost/fbtry.html?code=AQCHH5JYR39KXVFPTqVPNLy1fdjEDS32grWh9a6VUrQHDI_9G8mcef8xHCjlq5dyTMrHIZs3xDhmW9xbXyxMRkgVw7z3fRRRpg-pPg1N6y-6D9_GrjmEnrhE3cQtRHHvVwpZl6HT_AbMhYrfPLY3mjhJ8194uY5jrCNVuoE_JLPj8oD71n11EE2k0KYJ8A8rSo9P8JLxCk_2uJ50j4-Xz5mfARAFP5dwKSO9j8p2v4Zv3AWAe-fbsHeKuH509jadkOjNRjZBTGfHm7aHMELQvZ-fpKGVV-QfmJYTGkVf5wjgxMSMM-H_0pRyikiyFNkHUPc#_=_
+{
+"access_token":"EAACLi7ZBkJvUBAMB3jMg9fO48yOBnpxfDmZCJ5G0RSAZCI8PekQY9vAvUrcVhh2AcZBAwFI3jpTKAglJ8ZBsdWoNCndbW772QZC2cvCFo2yOjtAmMY1ZBoKokjAMXsvkmel6TuXZChpGrNGMmxTHTZBachISGSZAIqoB5eCMLbQFv8OgZDZD",
+"token_type":"bearer",
+"expires_in":5183706
+}-->
+</body>
+</html>
