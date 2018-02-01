@@ -26,14 +26,12 @@ public class hai{
 			eachdeterminant(a,b,k,d);
     }
 	public static void eachdeterminant(double a[][], double b[][], int k, double d){
-		int i,j,l,m;
+		int i,j;
 		double[][] c = new double[k][k];
 		for(j=0;j<k;j++){
-			for(l=0;l<k;l++){
-				for(m=0;m<k;m++){
-					c[l][m]=a[l][m];
-				}
-			}
+			for (int l = 0; l < k; l++) {		    
+                		System.arraycopy(a[l], 0, c[l], 0, k);         
+            		}
 			for(i=0;i<k;i++){
 				c[i][j]=b[i][0];
 			}
