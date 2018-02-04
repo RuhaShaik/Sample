@@ -1,0 +1,141 @@
+#include<stdio.h>
+#include<math.h>
+float determinant(float [][25], int);
+void cofactor(float [][25], int);
+void transpose(float [][25], float [][25], int);
+void result(float [][25], float [][25], int);
+int main()
+{
+  float a[25][25], d, b[25][1];
+  int i, j,k;
+  printf("Enter the order of the Matrix : ");
+  scanf("%d", &k);
+  printf("Enter the elements of %dX%d Matrix : \n", k, k);
+  for (i = 0;i < k; i++){
+     for (j = 0;j < k; j++){
+        scanf("%f", &a[i][j]);
+        }
+    }
+  d = determinant(a, k);
+  if (d == 0)
+   printf("\nsolution of Entered Matrix is not possible\n");
+  else{
+      printf("Enter the b Matrix : ");
+      for (i = 0;i < k; i++){
+            scanf("%f", &b[i][0]);
+      }
+      result(a,b,k);
+   //cofactor(a, k);
+  }
+}
+float result(float a[25][25],b[25][25], int f){
+    int
+    for (int i = 0; i < f; i++) {
+    for (int k = 0; k < f; k++) {
+        for (int j = 0; j < f; j++) {
+            c[i][j] += a[i][k] * b[k][j];
+            printf("%d\t",c[i][j]);
+        }
+    }
+}
+
+}
+/*For calculating Determinant of the Matrix */
+float determinant(float a[25][25], int k)
+{
+  float s = 1, det = 0, b[25][25];
+  int i, j, m, n, c;
+  if (k == 1){
+     return (a[0][0]);
+    }
+  else if(k==2){
+      det=0;
+      return (a[0][0]*a[1][1]-a[0][1]*a[1][0]);
+  }
+  else{
+     det = 0;
+     for (c = 0; c < k; c++)
+       {
+        m = 0;
+        n = 0;
+        for (i = 0;i < k; i++)
+          {
+            for (j = 0 ;j < k; j++)
+              {
+                b[i][j] = 0;
+                if (i != 0 && j != c)
+                 {
+                   b[m][n] = a[i][j];
+                   if (n < (k - 2))
+                    n++;
+                   else
+                    {
+                     n = 0;
+                     m++;
+                     }
+                   }
+               }
+             }
+          det = det + s * (a[0][c] * determinant(b, k - 1));
+          s = -1 * s;
+          }
+    }
+    return (det);
+}
+void cofactor(float num[25][25], int f)
+{
+ float b[25][25], fac[25][25];
+ int p, q, m, n, i, j,s=1;
+ if(f==1){
+     fac[0][0]=num[0][0];
+ }
+ else if(f==2){
+     for (q = 0;q < f; q++){
+      for (p = 0;p < f; p++) {
+        fac[q][p]=s*a[q][p]; 
+        s=(-1)*s;
+      }
+     }
+ }
+ else{
+    for (q = 0;q < f; q++){
+      for (p = 0;p < f; p++) {
+        m = 0;
+        n = 0;
+        for (i = 0;i < f; i++)
+        {
+          for (j = 0;j < f; j++)
+           {
+             if (i != q && j != p)
+             {
+               b[m][n] = num[i][j];
+               if (n < (f - 2))
+                n++;
+               else
+                {
+                  n = 0;
+                  m++;
+                  }
+               }
+           }
+         }
+        fac[q][p] = pow(-1, q + p) * determinant(b, f - 1);
+       }
+     }
+    }
+
+ transpose(num, fac, f);
+}
+void transpose(float a[25][25] ,int n)
+{
+   int i,j;
+   double tmp;
+
+   for (i=1;i<n;i++) {
+      for (j=0;j<i;j++) {
+         tmp = a[i][j];
+         a[i][j] = a[j][i];
+         a[j][i] = tmp;
+      }
+   }
+}
